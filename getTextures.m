@@ -26,8 +26,17 @@ function [mesh,tn] = getTextures(mesh,annotation,img)
 % triplot(mesh.faces(:,n)',mesh.tx(1,:),mesh.tx(2,:));
 
 P = getCameraMatrix(annotation);
-[K,R,C] = decomposeP(P);
 imageSize = [size(img,1) size(img,2)];
+
+maxRes = 360;%640;
+if max(imageSize)>maxRes
+  scaleFactor = maxRes/max(imageSize);
+  P = [scaleFactor 0 0; 0 scaleFactor 0; 0 0 1]*P;
+  img = imresize(img,scaleFactor,'bicubic');
+  imageSize = [size(img,1) size(img,2)];
+end
+
+[K,R,C] = decomposeP(P);
 
 % Ray-cast:
 [x,y] = meshgrid(1:imageSize(2),1:imageSize(1));

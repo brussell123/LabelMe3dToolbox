@@ -41,6 +41,11 @@ switch nargin
 end
 
 if nargin <= 2
+  if ~isfield(annotation,'camera')
+    P = [];
+    return;
+  end
+  
   if isfield(annotation.camera,'pmatrix') && isfield(annotation.camera.pmatrix,'p11')
     pmatrix = annotation.camera.pmatrix;
     P = zeros(3,4);

@@ -28,8 +28,8 @@ function [A,ua,area1,area2] = PolyAreas(X1,Y1,X2,Y2)
   max_x = ceil(max_x+1); 
   max_y = ceil(max_y+1);
   
-  M1 = poly2mask(X1,Y1,max_res,max_res);
-  M2 = poly2mask(X2,Y2,max_res,max_res);
+  M1 = poly2mask(double(X1),double(Y1),max_res,max_res);
+  M2 = poly2mask(double(X2),double(Y2),max_res,max_res);
   
   A = sum(sum(double(M1&M2)));
   ua = sum(sum(double((M1+M2)>0)));

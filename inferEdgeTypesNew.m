@@ -97,7 +97,8 @@ for i = validObjects
     
     % Set contact edges:
     edges = annotation.object(i).polygon.edges;
-    Npts = length(annotation.object(i).polygon.pt);
+    Npts = length(getLMpolygon(annotation.object(i).polygon));
+% $$$     Npts = length(annotation.object(i).polygon.pt);
     [X,Y] = getLMpolygon(annotation.object(i).polygon);
     
     % Get contact edges:

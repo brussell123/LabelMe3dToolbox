@@ -1,4 +1,107 @@
-function [k,bb,mu_obj,sig_obj] = getObjectsWithHeightDistributions(annotation,derek,img)
+function [bb,mu_obj,sig_obj,k] = getObjectsWithHeightDistributions(annotation,params,imageSize)
+% [bb,mu_obj,sig_obj,k] = getObjectsWithHeightDistributions(annotation,params,imageSize)
+%
+% Extract objects with valid height distributions.
+%
+% Inputs:
+% annotation - LabelMe annotation structure.
+% params - Object height distributions
+% imageSize - Input image size
+%
+% Outputs:
+% bb - Bounding boxes of computed height extent [xmin xmax ytop ybot ycontact]
+% mu_obj - Mean real-world object height.
+% sig_obj - Standard deviation real-world object height.
+% k - Object indices with valid height distributions
+
+% Extract object names for which we have computed height distributions:
+objNames = params.objNames; % Object names
+
+Nobjects = length(annotation.object);
+notDeleted = find(~isdeleted(annotation))';
+
+% Construct object structure:
+k = zeros(1,Nobjects);
+bb = zeros(5,Nobjects);
+mu_obj = zeros(1,Nobjects);
+sig_obj = zeros(1,Nobjects);
+for j = notDeleted
+  % Determine whether object has computed height distribution:
+  n = strmatch(strtrim(lower(annotation.object(j).name)),strtrim(lower(objNames)),'exact');
+
+  if ~isempty(n) && (params.mu_obj(n)~=0)
+    switch annotation.object(j).world3d.type
+     case 'standingplanes'
+      % Get contact points:
+      [cx,cy] = getContactPoints(annotation.object(j).world3d);
+      if ~isempty(cx)
+        [x,y] = getLMpolygon(annotation.object(j).polygon);
+        if isCleanObject(x,y,imageSize)
+          display(annotation.object(j).name);
+          [x,y] = LH2RH(x,y,imageSize);
+          [cx,cy] = LH2RH(cx,cy,imageSize);
+          x1 = min(x); x2 = max(x); ytop = max(y);
+          ybot = min(cy);
+          ycontact = ybot;
+          k(j) = 1;
+          bb(:,j) = [x1 x2 ytop ybot ycontact]';
+          mu_obj(j) = params.mu_obj(n);
+          sig_obj(j) = params.sig_obj(n);
+        end
+      end
+
+% $$$      case 'part'
+% $$$       % Get object it is attached to:
+% $$$       nParent = getPartOfParentStanding(annotation,j);
+% $$$       nParent = nParent(end);
+% $$$       
+% $$$       if strcmp(annotation.object(nParent).polygon.polyType,'standing')
+% $$$         % Get contact points of parent object:
+% $$$         cpts = find(ismember({annotation.object(nParent).polygon.pt(:).edgeType},'c'));
+% $$$         
+% $$$         if ~isempty(cpts)
+% $$$           [x,y] = getLMpolygon(annotation.object(j).polygon);
+% $$$           if isCleanObject(x,y,[nrows ncols])
+% $$$             display(sprintf('%s->%s',annotation.object(j).name,annotation.object(nParent).name));
+% $$$ 
+% $$$             % Get extent of part:
+% $$$             x1 = min(x); x2 = max(x); ytop = min(y); %[ybot,jbot] = max(y);
+% $$$ % $$$             xbot = x(jbot);
+% $$$             
+% $$$             % Get contact point corresponding to lowest point on part:
+% $$$             [xPar,yPar] = getLMpolygon(annotation.object(nParent).polygon);
+% $$$ 
+% $$$             %% Get bottom contact point and use this instead:
+% $$$             xAll = [x1:x2];
+% $$$             ycontactAll = getFootprint(xPar(cpts),yPar(cpts),xAll);
+% $$$             [ycontact,ndxContact] = max(ycontactAll);
+% $$$             xbot = xAll(ndxContact);
+% $$$             
+% $$$ % $$$             ycontact = getFootprint(xPar(cpts),yPar(cpts),xbot);
+% $$$             
+% $$$             clf;
+% $$$             imshow(img);
+% $$$             hold on;
+% $$$             plot([xPar; xPar(1)],[yPar; yPar(1)],'r','LineWidth',4);
+% $$$             plot([x; x(1)],[y; y(1)],'g','LineWidth',4);
+% $$$             plot(xAll,ycontactAll,'y','LineWidth',4);
+% $$$             plot(xbot,ycontact,'b.','MarkerSize',12);
+% $$$             pause;
+% $$$             
+% $$$             % Set output:
+% $$$           end
+% $$$         end
+% $$$       end
+    end      
+  end
+end
+k = find(k);
+bb = bb(:,k);
+mu_obj = mu_obj(k);
+sig_obj = sig_obj(k);
+
+
+function [k,bb,mu_obj,sig_obj] = getObjectsWithHeightDistributions_old(annotation,derek,img)
 % [k,bb,mu_obj,sig_obj] = getObjectsWithHeightDistributions(annotation,derek,img)
 %
 % Extract objects with valid height distributions.

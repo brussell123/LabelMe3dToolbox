@@ -2,8 +2,8 @@ function [X,isAdded,nPlane,x,y] = projectOntoStandingPlanes(varargin)
 
 switch nargin
  case 4
-  x = varargin{1};
-  y = varargin{2};
+  x = double(varargin{1});
+  y = double(varargin{2});
   annotation = varargin{3};
   i = varargin{4};
   P = getCameraMatrix(annotation);
@@ -13,15 +13,15 @@ switch nargin
   yc = str2num(char({annotation.object(i).world3d.contact(:).y}));
   [xc,yc] = LH2RH(xc,yc,imageSize);
  case 6
-  x = varargin{1};
-  y = varargin{2};
+  x = double(varargin{1});
+  y = double(varargin{2});
   P = varargin{3};
   PI = varargin{4};
   xc = varargin{5};
   yc = varargin{6};
  case 7
-  x = varargin{1};
-  y = varargin{2};
+  x = double(varargin{1});
+  y = double(varargin{2});
   P = varargin{3};
   PI = varargin{4};
   xc = varargin{5};

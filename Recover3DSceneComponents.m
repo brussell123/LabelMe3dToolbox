@@ -37,9 +37,6 @@ dd = isdeleted(annotation);
 validObjects = intersect(validObjects,find(dd==0)');
 
 display(sprintf('Computing geometry for %d objects.',length(validObjects)));
-% $$$ for i = 1:length(validObjects)
-% $$$   display(sprintf('Valid object ID: %s',annotation.object(validObjects(i)).id));
-% $$$ end
 
 % Clean up object names:
 annotation = myLMaddtags(annotation);
@@ -97,29 +94,28 @@ if isfield(annotation.object,'partof')
   annotation.object = rmfield(annotation.object,'partof');
 end
 
+% Convert image size to strings:
+annotation.imagesize.nrows = num2str(annotation.imagesize.nrows);
+annotation.imagesize.ncols = num2str(annotation.imagesize.ncols);
+
 % Find camera parameters:
 annotation = getviewpoint(annotation,Params3D.ObjectHeights);
 
 % Get indices of non-deleted objects:
 notDeleted = find(~isdeleted(annotation))';
 
-% Convert image size to strings:
-annotation.imagesize.nrows = num2str(annotation.imagesize.nrows);
-annotation.imagesize.ncols = num2str(annotation.imagesize.ncols);
-
 valid = 0;
 for i = notDeleted
-% $$$   if strcmp(annotation.object(i).polygon.polyType,'ground')
   if strcmp(annotation.object(i).world3d.type,'groundplane')
     valid = 1;
   end
 end
 
-Hy = str2num(annotation.camera.Hy)/imageSize(1);
-if (Hy < 0.05) || (Hy > 0.95)
-  display('Horizon line is out of range.');
-  valid = 0;
-end
+% $$$ Hy = str2num(annotation.camera.Hy)/imageSize(1);
+% $$$ if (Hy < 0.05) || (Hy > 0.95)
+% $$$   display('Horizon line is out of range.');
+% $$$   valid = 0;
+% $$$ end
 
 % Restore original object names:
 for i = 1:length(annotation.object)
@@ -129,34 +125,34 @@ end
 % Remove "originalname" field:
 annotation.object = rmfield(annotation.object,'originalname');
 
-% annotation.camera
-P = getCameraMatrix(annotation);
-
-% Store camera matrix:
-annotation.camera.units = 'centimeters';
-annotation.camera.pmatrix.p11 = num2str(P(1,1));
-annotation.camera.pmatrix.p12 = num2str(P(1,2));
-annotation.camera.pmatrix.p13 = num2str(P(1,3));
-annotation.camera.pmatrix.p14 = num2str(P(1,4));
-annotation.camera.pmatrix.p21 = num2str(P(2,1));
-annotation.camera.pmatrix.p22 = num2str(P(2,2));
-annotation.camera.pmatrix.p23 = num2str(P(2,3));
-annotation.camera.pmatrix.p24 = num2str(P(2,4));
-annotation.camera.pmatrix.p31 = num2str(P(3,1));
-annotation.camera.pmatrix.p32 = num2str(P(3,2));
-annotation.camera.pmatrix.p33 = num2str(P(3,3));
-annotation.camera.pmatrix.p34 = num2str(P(3,4));
-
-% Remove old extra fields:
-if isfield(annotation.camera,'Hy')
-  annotation.camera = rmfield(annotation.camera,'Hy');
-end
-if isfield(annotation.camera,'CAM_H')
-  annotation.camera = rmfield(annotation.camera,'CAM_H');
-end
-if isfield(annotation.camera,'F')
-  annotation.camera = rmfield(annotation.camera,'F');
-end
+% $$$ % annotation.camera
+% $$$ P = getCameraMatrix(annotation);
+% $$$ 
+% $$$ % Store camera matrix:
+% $$$ annotation.camera.units = 'centimeters';
+% $$$ annotation.camera.pmatrix.p11 = num2str(P(1,1));
+% $$$ annotation.camera.pmatrix.p12 = num2str(P(1,2));
+% $$$ annotation.camera.pmatrix.p13 = num2str(P(1,3));
+% $$$ annotation.camera.pmatrix.p14 = num2str(P(1,4));
+% $$$ annotation.camera.pmatrix.p21 = num2str(P(2,1));
+% $$$ annotation.camera.pmatrix.p22 = num2str(P(2,2));
+% $$$ annotation.camera.pmatrix.p23 = num2str(P(2,3));
+% $$$ annotation.camera.pmatrix.p24 = num2str(P(2,4));
+% $$$ annotation.camera.pmatrix.p31 = num2str(P(3,1));
+% $$$ annotation.camera.pmatrix.p32 = num2str(P(3,2));
+% $$$ annotation.camera.pmatrix.p33 = num2str(P(3,3));
+% $$$ annotation.camera.pmatrix.p34 = num2str(P(3,4));
+% $$$ 
+% $$$ % Remove old extra fields:
+% $$$ if isfield(annotation.camera,'Hy')
+% $$$   annotation.camera = rmfield(annotation.camera,'Hy');
+% $$$ end
+% $$$ if isfield(annotation.camera,'CAM_H')
+% $$$   annotation.camera = rmfield(annotation.camera,'CAM_H');
+% $$$ end
+% $$$ if isfield(annotation.camera,'F')
+% $$$   annotation.camera = rmfield(annotation.camera,'F');
+% $$$ end
 
 % Remove points that have been added before:
 for i = notDeleted

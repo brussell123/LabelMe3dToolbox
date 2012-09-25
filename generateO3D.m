@@ -3,20 +3,25 @@ function generateO3D(mesh,outfname)
 % mesh
 % outfname
 
-% Parameters:
-scaling = 1/100; % Convert to meters
-
-objNdx = unique(mesh.objndx);
+objNdx = 1:max(mesh.objndx);%unique(mesh.objndx);
 Nobjects = length(objNdx);
 fp = fopen(outfname,'w');
 fprintf(fp,'%d',Nobjects);
 for i = 1:Nobjects
   mesh_i = getObjectMesh(mesh,objNdx(i));
-  mesh_i.tx(2,:) = -mesh_i.tx(2,:);
-  fprintf(fp,',%d,%d,',length(mesh_i.vertices),length(mesh_i.faces));
-  fprintf(fp,'%.4f,%.4f,%.4f,',mesh_i.vertices);
-  fprintf(fp,'%.4f,%.4f,',mesh_i.tx);
-  fprintf(fp,'%d,%d,%d,',mesh_i.faces);
+  if ~isempty(mesh_i.vertices)
+    mesh_i.tx(1,:) = mesh_i.tx(1,:)/size(mesh_i.textures{objNdx(i)},2);
+    mesh_i.tx(2,:) = 1-mesh_i.tx(2,:)/size(mesh_i.textures{objNdx(i)},1);
+  end
+  if ~isempty(mesh_i.vertices)
+    fprintf(fp,',%d,%d,',size(mesh_i.vertices,2),size(mesh_i.faces,2));
+    fprintf(fp,'%.4f,%.4f,%.4f,',mesh_i.vertices);
+    fprintf(fp,'%.4f,%.4f,',mesh_i.tx);
+    fprintf(fp,'%d,%d,%d,',mesh_i.faces(:,1:end-1)-1);
+    fprintf(fp,'%d,%d,%d',mesh_i.faces(:,end)-1);
+  else
+    fprintf(fp,',%d,%d',0,0);
+  end
 end
 fclose(fp);
 

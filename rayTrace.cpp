@@ -451,7 +451,7 @@ void mexFunction(int nlhs,mxArray *plhs[],int nrhs,const mxArray *prhs[]) {
     if(maxLambda != -INF) {
       isValid[i] = 1;
       faceNdx[i] = jmax+1;
-      for(j = 0; j < 3; j++) X[j+i*3] = D[j+i*3]*maxLambda+C[j];
+      for(j = 0; j < 3; j++) X[j+i*3] = -D[j+i*3]*maxLambda+C[j];
     }
   }
 
