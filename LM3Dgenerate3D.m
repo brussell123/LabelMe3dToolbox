@@ -2,6 +2,8 @@ function caught_errs = LM3Dgenerate3D(HOMEANNOTATIONS,HOMEIMAGES)
 % Runs LabelMe3D algorithm over annotations folder to generate 3D
 % outputs.
 %
+% WARNING: This function will overwrite your XML annotations.
+%
 % Example: Run over all XML annotations inside HOMEANNOTATIONS folder:
 %
 % HOMEANNOTATIONS = '/path/to/Annotations';

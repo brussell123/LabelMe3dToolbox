@@ -41,3 +41,7 @@ if ~exist(vrmlfolder,'dir')
 end
 LM2VRML(annotation,mesh,vrmlfile,vrmlfolder);
 display(sprintf('Produced a VRML file here: %s',fullfile(vrmlfolder,vrmlfile)));
+
+% Run LabelMe3D algorithm.
+% WARNING: this will over-write your XML annotations!
+LM3Dgenerate3D(HOMEANNOTATIONS,HOMEIMAGES);
