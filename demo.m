@@ -29,9 +29,7 @@ img = LMimread(DB,i,HOMEIMAGES);
 % Create depth maps:
 
 % Generate textured mesh:
-mesh = getSceneMesh(annotation);
-mesh = subDivideMesh(mesh,2);
-mesh = getTextures(mesh,annotation,img);
+mesh = LM3DgetTexturedMesh(annotation,img);
 
 % Generate VRML file:
 vrmlfile = strrep(annotation.filename,'.jpg','.wrl');
