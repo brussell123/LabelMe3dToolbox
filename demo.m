@@ -1,12 +1,20 @@
+% This script demonstrates the main functionalities of the LabelMe3D
+% toolbox.  The functionalities depend on the LabelMe toolbox, which can
+% be downloaded from here:
+%
+% http://labelme.csail.mit.edu/LabelMeToolbox/index.html
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Step 1: Change this paths to point to the desired location of the
 % LabelMe3D database
 HOMEDATABASE = './LM3D_database';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Add required toolboxes to path:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Step 2: Add required toolboxes to path:
 addpath '~/work/MatlabLibraries/LabelMeToolbox';
 addpath '~/work/MatlabLibraries/LabelMe3dToolbox';
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Define needed paths for the database:
 HOMEIMAGES = fullfile(HOMEDATABASE,'Images');
@@ -16,10 +24,18 @@ CACHE_DIR = fullfile(HOMEDATABASE,'cache'); % Location of any 3D outputs
 % Download data:
 LM3Dinstall(HOMEIMAGES,HOMEANNOTATIONS);
 
-% Read data into Matlab structure:
-DB = LMdatabase(HOMEANNOTATIONS);
+% Read data into Matlab structure.  The LabelMe annotation structure for
+% the ith image is stored as "DB(i).annotation".
+DB = LM3Ddatabase(HOMEANNOTATIONS);
 
-% Get annotation:
+% Read an annotation and image directly from the LabelMe server:
+HOMEANNOTATIONS = 'http://labelme.csail.mit.edu/Annotations';
+HOMEIMAGES = 'http://labelme.csail.mit.edu/Images';
+folderlist = {'05june05_static_street_boston'};
+filelist = {'p1010736.jpg'};
+DB = LM3Ddatabase(HOMEANNOTATIONS,HOMEIMAGES,folderlist,filelist);
+
+% Get an image and annotation:
 i = 1;
 annotation = DB(i).annotation;
 img = LMimread(DB,i,HOMEIMAGES);
