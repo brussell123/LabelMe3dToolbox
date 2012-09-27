@@ -64,8 +64,12 @@ for i = 1:length(annotation.object)
 % $$$         keyboard;
         
         % Get Delaunay triangulation of plane polygon points:
-        tri = delaunay(xx,yy,{'Qbb','Qc','QJ','Pp'})';
-
+        try
+          tri = delaunay(xx,yy)';
+        catch
+          tri = delaunay(xx,yy,{'Qbb','Qc','QJ','Pp'})';
+        end
+        
         % Determine which triangles are inside polygon:
         cx = mean(reshape(xx(tri),size(tri)),1);
         cy = mean(reshape(yy(tri),size(tri)),1);
