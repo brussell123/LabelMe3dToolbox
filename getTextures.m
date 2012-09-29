@@ -60,8 +60,7 @@ for i = objNdx
   % Project mesh points:
   n = mesh.faces(:,find(mesh.objndx==i));
   n = double(unique(n(:)))';
-  xi = P*[mesh.vertices(:,n); ones(1,length(n))];
-  [xi,yi] = RH2LH(xi(1,:)./xi(3,:),xi(2,:)./xi(3,:),imageSize);
+  [xi,yi] = Project3D2D(mesh.vertices(:,n),P,imageSize);
   
   % Get bounding box:
   bb = [max(1,floor(min(xi))) min(imageSize(2),ceil(max(xi))) max(1,floor(min(yi))) min(imageSize(1),ceil(max(yi)))];
