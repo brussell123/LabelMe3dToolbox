@@ -73,6 +73,13 @@ for i = 1:length(annotation.object)
 end
 display(sprintf('Mean error: %f',mean(err(:))));
 
+% Plot labeled objects and horizon line:
+[xh,yh] = getHorizonLine(annotation);
+figure;
+LMplot(annotation,img);
+hold on;
+plot(xh,yh,'r');
+
 % Run LabelMe3D algorithm.
 % WARNING: this will over-write your XML annotations!
 LM3Dgenerate3D(HOMEANNOTATIONS,HOMEIMAGES);
