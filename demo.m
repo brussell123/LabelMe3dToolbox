@@ -5,6 +5,11 @@
 % http://labelme.csail.mit.edu/LabelMeToolbox/index.html
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Step 0: Compile mex files in the toolbox
+compile;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Step 1: Change this paths to point to the desired location of the
 % LabelMe3D database
 HOMEDATABASE = './LM3D_database';
