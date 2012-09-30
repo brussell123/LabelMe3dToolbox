@@ -82,4 +82,5 @@ plot(xh,yh,'r');
 
 % Run LabelMe3D algorithm.
 % WARNING: this will over-write your XML annotations!
+HOMEANNOTATIONS = fullfile(HOMEDATABASE,'Annotations');
 LM3Dgenerate3D(HOMEANNOTATIONS,HOMEIMAGES);
