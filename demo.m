@@ -46,6 +46,8 @@ annotation = DB(i).annotation;
 img = LMimread(DB,i,HOMEIMAGES);
 
 % Plot 3D annotations:
+figure;
+LMplot3Dscene(annotation);
 
 % Create depth maps:
 
