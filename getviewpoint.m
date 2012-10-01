@@ -118,7 +118,7 @@ paramsIn = double([f px py wx wz Cy]);
 
 options = optimset;
 if isfield(options,'Algorithm')
-  options = optimset('NonlEqnAlgorithm','lm','Jacobian','on','Display','off','Algorithm','levenberg-marquardt');
+  options = optimset('Jacobian','on','Display','off','Algorithm','levenberg-marquardt');
 else
 % $$$   options = optimset('LargeScale','off','LevenbergMarquardt','on','Jacobian','on','Display','off');
   options = optimset('NonlEqnAlgorithm','lm','Jacobian','on','Display','off');
