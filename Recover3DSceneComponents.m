@@ -175,7 +175,6 @@ for i = notDeleted%1:length(annotation.object)
    case 'groundplane'
     % Intersect polygon points with ground plane:
     [x,y] = getLMpolygon(annotation.object(i).polygon);
-    [x,y] = LH2RH(x,y,imageSize);
     X = projectOntoGroundPlane(x,y,annotation);
     annotation.object(i).world3d.polygon3d = setLMpolygon3D(X(1,:),X(2,:),X(3,:));
 
@@ -272,20 +271,14 @@ for i = notDeleted%1:length(annotation.object)
     if isfield(annotation.object(nRoot).world3d,'polygon3d')
       % Get polygon:
       [x,y] = getLMpolygon(annotation.object(i).polygon);
-      [x,y] = LH2RH(x,y,imageSize);
 
       switch annotation.object(nRoot).world3d.type
        case 'standingplanes'
         % Project 2D points onto root object's standing planes:
+        [x,y] = LH2RH(x,y,imageSize);
         [X,isAdded,nPlane,x,y] = projectOntoStandingPlanes(x,y,annotation,nRoot);
        case 'groundplane'
         [X,isAdded,nPlane,x,y] = projectOntoGroundPlane(x,y,annotation);
-% $$$         H = P(:,[1 3 4]);
-% $$$         X = H\[x(:) y(:) ones(length(x),1)]';
-% $$$         X = [X(1,:)./X(3,:); zeros(1,length(x)); X(2,:)./X(3,:)];
-% $$$         isAdded = zeros(1,length(x));
-% $$$         nPlane = cell(1,length(x));
-% $$$         nPlane(:) = {1};
        otherwise
         error('Root object 3D type is invalid');
       end

@@ -33,7 +33,6 @@ annotation.object(end).world3d.type = 'groundplane';
 annotation.object(end).world3d.stale = '0';
 
 [x,y] = getLMpolygon(annotation.object(end).polygon);
-[x,y] = LH2RH(x,y,imageSize);
 X = projectOntoGroundPlane(x,y,annotation);
 annotation.object(end).world3d.polygon3d = setLMpolygon3D(X(1,:),X(2,:),X(3,:));
 
