@@ -28,8 +28,10 @@ if size(X,1) < 4
   X = [X; ones(1,size(X,2))];
 end
 x = P*X;
-[x,y] = RH2LH(x(1,:)./x(3,:),x(2,:)./x(3,:),imageSize);
 
 if nargout==1
-  x = [x; y];
+  x = [x(1,:)./x(3,:); x(2,:)./x(3,:)];
+else
+  y = x(2,:)./x(3,:);
+  x = x(1,:)./x(3,:);
 end

@@ -40,7 +40,6 @@ end
 
 % Ray-cast:
 [x,y] = meshgrid(1:imageSize(2),1:imageSize(1));
-[x,y] = LH2RH(x,y,imageSize);
 x = [x(:) y(:) ones(prod(size(x)),1)]';
 [X,isValid,faceNdx] = rayTrace(single(P(:,1:3)\x),single(C),mesh.vertices,mesh.faces);
 

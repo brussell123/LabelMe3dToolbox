@@ -18,7 +18,7 @@ function [X,Y,Z,mx,my,tri,boundary,CptsNdx,valid] = getObject3D(annotation,i,mes
 npts = 11; % Trimesh parameter
 
 % Get camera matrix:
-P = getCameraMatrix(annotation);
+P = getCameraMatrix(annotation,'RH');
 Hy = str2num(annotation.camera.Hy);
 
 nrows = str2num(annotation.imagesize.nrows);

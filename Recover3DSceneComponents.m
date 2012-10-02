@@ -133,7 +133,7 @@ end
 
 
 % Add 3D information for groundplane and standingplanes objects:
-P = getCameraMatrix(annotation);
+P = getCameraMatrix(annotation,'RH');
 [K,R,C] = decomposeP(P);
 for i = notDeleted%1:length(annotation.object)
   switch annotation.object(i).world3d.type

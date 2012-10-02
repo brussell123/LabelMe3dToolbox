@@ -9,7 +9,7 @@ if nargin < 2
   mesh = subDivideMesh(mesh,2);
 end
 
-P = getCameraMatrix(annotation);
+P = getCameraMatrix(annotation,'RH');
 
 imageSize = [str2num(annotation.imagesize.nrows) str2num(annotation.imagesize.ncols)];
 

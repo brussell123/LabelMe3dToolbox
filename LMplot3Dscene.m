@@ -1,6 +1,6 @@
 function LMplot3Dscene(annotation)
 
-P = getCameraMatrix(annotation);
+P = getCameraMatrix(annotation,'RH');
 [K,R,C] = decomposeP(P);
 
 Ncolors = 10;

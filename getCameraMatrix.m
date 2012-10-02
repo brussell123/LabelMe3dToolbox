@@ -1,4 +1,4 @@
-function P = getCameraMatrix(annotation)
+function P = getCameraMatrix(annotation,type)
 % function P = getCameraMatrix(annotation)
 %
 % Gets camera matrix for 3D scene.  
@@ -8,6 +8,10 @@ function P = getCameraMatrix(annotation)
 %
 % Outputs:
 % P - 3x4 camera matrix.
+
+if nargin < 2
+  type = 'LH';
+end
 
 P = [];
 
@@ -22,4 +26,10 @@ if isfield(annotation,'camera') && isfield(annotation.camera,'pmatrix') && isfie
          pmatrix.p21 pmatrix.p22 pmatrix.p23 pmatrix.p24; ...
          pmatrix.p31 pmatrix.p32 pmatrix.p33 pmatrix.p34];
   end
+end
+
+if ~isempty(P) && strcmp(type,'RH')
+  imageSize = [str2num(annotation.imagesize.nrows) str2num(annotation.imagesize.ncols)];
+  T = [-1 0 (imageSize(2)+1)/2; 0 -1 (imageSize(1)+1)/2; 0 0 1];
+  P = T*P;
 end

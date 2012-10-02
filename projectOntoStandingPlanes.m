@@ -6,7 +6,7 @@ switch nargin
   y = double(varargin{2});
   annotation = varargin{3};
   i = varargin{4};
-  P = getCameraMatrix(annotation);
+  P = getCameraMatrix(annotation,'RH');
   imageSize = [str2num(annotation.imagesize.nrows) str2num(annotation.imagesize.ncols)];
   PI = getPlanes(annotation.object(i).world3d.plane);
   xc = str2num(char({annotation.object(i).world3d.contact(:).x}));

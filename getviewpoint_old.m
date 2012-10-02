@@ -14,7 +14,7 @@ display('In getviewpoint_old.m...');
 
 %%% LOOK INTO THIS %%%
 % $$$ % Testing constraints:
-% $$$ P = getCameraMatrix(annotation);
+% $$$ P = getCameraMatrix(annotation,'RH');
 % $$$ ll = cross(P(:,3),P(:,1));
 % $$$ for i = 1:length(annotation.object)
 % $$$   if strcmp(annotation.object(i).world3d.type,'standingplanes')
@@ -87,7 +87,7 @@ else
   maxGround = -inf;
 end
 
-P = getCameraMatrix(annotation);
+P = getCameraMatrix(annotation,'RH');
 
 if ~isempty(P)
   [K,R,C] = decomposeP(P);
@@ -163,6 +163,10 @@ K = [f 0 px; 0 f py; 0 0 1];
 C = [0; Cy; 0];
 
 P = K*R*[eye(3) -C];
+
+% Convert camera matrix to be in LH coordinates:
+imageSize = [nrows ncols];
+P = [-1 0 (imageSize(2)+1)/2; 0 -1 (imageSize(1)+1)/2; 0 0 1]*P;
 
 annotation = setCameraMatrix(annotation,P,'centimeters');
 

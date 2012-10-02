@@ -29,7 +29,7 @@ else
 end
 
 % Get initial camera position:
-P = getCameraMatrix(annotation);
+P = getCameraMatrix(annotation,'RH');
 [K,R,initialCamera] = decomposeP(P);
 
 % Dump VRML file:
