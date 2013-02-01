@@ -17,51 +17,28 @@ addpath '~/work/MatlabLibraries/LabelMe3dToolbox'; % LabelMe3D toolbox
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% DOWNLOAD DATA, OPTION 1: Download the entire database onto your machine.
+% Read a LabelMe annotation and image directly from the LabelMe server
+% and compute its 3D information.
 
-% Change this path to point to the desired location of the LabelMe3D database:
-HOMEDATABASE = './LabelMe3D_database';
-
-% Define needed paths for the database:
-HOMEANNOTATIONS3D = fullfile(HOMEDATABASE,'Annotations3D');
-HOMEIMAGES = fullfile(HOMEDATABASE,'Images');
-
-% Download data:
-LM3Dinstall(HOMEIMAGES,HOMEANNOTATIONS3D);
-
-% Read data into Matlab structure.  The LabelMe annotation structure for
-% the ith image is stored as "DB(i).annotation".
-DB = LM3Ddatabase(HOMEANNOTATIONS3D);
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% DOWNLOAD DATA, OPTION 2: Download only needed images.
-
-% Read an annotation and image directly from the LabelMe server:
-HOMEANNOTATIONS3D = 'http://labelme.csail.mit.edu/Annotations3D';
+HOMEANNOTATIONS = 'http://labelme.csail.mit.edu/Annotations';
 HOMEIMAGES = 'http://labelme.csail.mit.edu/Images';
 folderlist = {'05june05_static_street_boston'};
 filelist = {'p1010736.jpg'};
-DB = LM3Ddatabase(HOMEANNOTATIONS3D,HOMEIMAGES,folderlist,filelist);
+DB = LMdatabase(HOMEANNOTATIONS,HOMEIMAGES,folderlist,filelist);
+img = LMimread(DB,1,HOMEIMAGES);
+annotation = Recover3DSceneComponents(DB.annotation);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% DATA VISUALIZATION.  The following illustrates how to visualize the data.
 
-% Get an image and annotation:
-i = 1;
-annotation = DB(i).annotation;
-img = LMimread(DB,i,HOMEIMAGES);
-
 % Plot 3D annotations:
 figure;
-LMplot3Dscene(annotation);
+LMplot3Dscene(annotation,img);
 
 % Plot inferred polygon and edge types:
 figure;
 plotPolyEdgeTypes(annotation,img);
-
-% Create depth maps:
 
 % Generate textured mesh:
 mesh = LM3DgetTexturedMesh(annotation,img);
@@ -95,30 +72,43 @@ hold on;
 plot(xh,yh,'r');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+return;
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% RUNNING LABELME3D ALGORITHM, OPTION 1: Run over all downloaded annotations.
+%%% DOWNLOAD DATA, OPTION 1: Download the entire database onto your machine.
+
+% Change this path to point to the desired location of the LabelMe3D database:
+HOMEDATABASE = './LabelMe3D_database';
+
+% Define needed paths for the database:
+HOMEANNOTATIONS3D = fullfile(HOMEDATABASE,'Annotations3D');
+HOMEIMAGES = fullfile(HOMEDATABASE,'Images');
+
+% Download data:
+LM3Dinstall(HOMEIMAGES,HOMEANNOTATIONS3D);
+
+% Read data into Matlab structure.  The LabelMe annotation structure for
+% the ith image is stored as "DB(i).annotation".
+DB = LM3Ddatabase(HOMEANNOTATIONS3D);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% DOWNLOAD DATA, OPTION 2: Download only needed images.
+
+% Read an annotation and image directly from the LabelMe server:
+HOMEANNOTATIONS3D = 'http://labelme.csail.mit.edu/Annotations3D';
+HOMEIMAGES = 'http://labelme.csail.mit.edu/Images';
+folderlist = {'05june05_static_street_boston'};
+filelist = {'p1010736.jpg'};
+DB = LM3Ddatabase(HOMEANNOTATIONS3D,HOMEIMAGES,folderlist,filelist);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% RUNNING LABELME3D ALGORITHM: Run over all downloaded annotations.
 
 % WARNING: this will over-write your downloaded XML annotations!
 HOMEANNOTATIONS3D = fullfile(HOMEDATABASE,'Annotations3D');
 LM3Dgenerate3D(HOMEANNOTATIONS3D,HOMEIMAGES);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% RUNNING LABELME3D ALGORITHM, OPTION 2: Run over a single LabelMe annotation.
-
-% Get LabelMe annotation:
-HOMEANNOTATIONS = 'http://labelme.csail.mit.edu/Annotations';
-HOMEIMAGES = 'http://labelme.csail.mit.edu/Images';
-folderlist = {'05june05_static_street_boston'};
-filelist = {'p1010736.jpg'};
-DB = LMdatabase(HOMEANNOTATIONS,HOMEIMAGES,folderlist,filelist);
-
-% Run algorithm:
-[annotation,valid] = Recover3DSceneComponents(DB.annotation);
-
-if valid
-  % Plot output:
-  figure;
-  LMplot3Dscene(annotation);
-end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
