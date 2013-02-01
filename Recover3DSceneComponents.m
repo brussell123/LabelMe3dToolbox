@@ -8,13 +8,11 @@ function [annotation,valid] = Recover3DSceneComponents(annotation,Params3D,image
 % annotation - LabelMe annotation structure, augmented with 3D information.
 % valid - Indicates whether output is valid.
 
-validObjects = [];
-for i = 1:length(annotation.object)
-  if ~isfield(annotation.object(i),'world3d') || ~isfield(annotation.object(i).world3d,'stale') || strcmp(annotation.object(i).world3d.stale,'1')
-    validObjects(end+1) = i;
-  end
+valid = 0;
+if (nargin < 3) && ~isfield(annotation,'imagesize')
+  error('The annotation is missing the <imagesize> field.  Please pass in [nrows ncols] as third argument to Recover3DSceneComponents.m.');
+  return;
 end
-
 if ~isfield(annotation,'imagesize')
   annotation.imagesize.nrows = imageSize(1);
   annotation.imagesize.ncols = imageSize(2);
@@ -24,6 +22,18 @@ if isstr(annotation.imagesize.nrows)
 end
 if isstr(annotation.imagesize.ncols)
   annotation.imagesize.ncols = str2num(annotation.imagesize.ncols);
+end
+imageSize = [annotation.imagesize.nrows annotation.imagesize.ncols];
+
+if nargin < 2
+  load Params3D.mat;
+end
+
+validObjects = [];
+for i = 1:length(annotation.object)
+  if ~isfield(annotation.object(i),'world3d') || ~isfield(annotation.object(i).world3d,'stale') || strcmp(annotation.object(i).world3d.stale,'1')
+    validObjects(end+1) = i;
+  end
 end
 
 % Add object IDs:
@@ -104,7 +114,6 @@ annotation = getviewpoint(annotation,Params3D.ObjectHeights);
 % Get indices of non-deleted objects:
 notDeleted = find(~isdeleted(annotation))';
 
-valid = 0;
 for i = notDeleted
   if strcmp(annotation.object(i).world3d.type,'groundplane')
     valid = 1;
