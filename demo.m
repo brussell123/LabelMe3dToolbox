@@ -5,26 +5,26 @@
 % http://labelme.csail.mit.edu/LabelMeToolbox/index.html
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Step 0: Compile mex files in the toolbox
+% Step 0: Compile mex files in the LabelMe3D toolbox
 compile;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Step 1: Change this paths to point to the desired location of the
+% Step 1: Change this path to point to the desired location of the
 % LabelMe3D database
-HOMEDATABASE = './LM3D_database';
+HOMEDATABASE = './LabelMe3D_database';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Step 2: Add required toolboxes to path:
-addpath '~/work/MatlabLibraries/LabelMeToolbox';
-addpath '~/work/MatlabLibraries/LabelMe3dToolbox';
+% Step 2: Add required toolboxes to the Matlab path (change the following
+% lines to point to the locations of the LabelMe and LabelMe3D toolboxes)
+addpath '~/work/MatlabLibraries/LabelMeToolbox'; % LabelMe toolbox
+addpath '~/work/MatlabLibraries/LabelMe3dToolbox'; % LabelMe3D toolbox
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Define needed paths for the database:
 HOMEIMAGES = fullfile(HOMEDATABASE,'Images');
-HOMEANNOTATIONS = fullfile(HOMEDATABASE,'Annotations');
-CACHE_DIR = fullfile(HOMEDATABASE,'cache'); % Location of any 3D outputs
+HOMEANNOTATIONS = fullfile(HOMEDATABASE,'Annotations3D');
 
 % Download data:
 LM3Dinstall(HOMEIMAGES,HOMEANNOTATIONS);
@@ -34,7 +34,7 @@ LM3Dinstall(HOMEIMAGES,HOMEANNOTATIONS);
 DB = LM3Ddatabase(HOMEANNOTATIONS);
 
 % Read an annotation and image directly from the LabelMe server:
-HOMEANNOTATIONS = 'http://labelme.csail.mit.edu/Annotations';
+HOMEANNOTATIONS = 'http://labelme.csail.mit.edu/Annotations3D';
 HOMEIMAGES = 'http://labelme.csail.mit.edu/Images';
 folderlist = {'05june05_static_street_boston'};
 filelist = {'p1010736.jpg'};
@@ -56,7 +56,7 @@ mesh = LM3DgetTexturedMesh(annotation,img);
 
 % Generate VRML file:
 vrmlfile = strrep(annotation.filename,'.jpg','.wrl');
-vrmlfolder = fullfile(CACHE_DIR,'vrml');
+vrmlfolder = fullfile(HOMEDATABASE,'cache','vrml');
 if ~exist(vrmlfolder,'dir')
   mkdir(vrmlfolder);
 end
@@ -82,7 +82,7 @@ LMplot(annotation,img);
 hold on;
 plot(xh,yh,'r');
 
-% Run LabelMe3D algorithm.
+% Run LabelMe3D algorithm over all annotations.
 % WARNING: this will over-write your XML annotations!
-HOMEANNOTATIONS = fullfile(HOMEDATABASE,'Annotations');
+HOMEANNOTATIONS = fullfile(HOMEDATABASE,'Annotations3D');
 LM3Dgenerate3D(HOMEANNOTATIONS,HOMEIMAGES);
