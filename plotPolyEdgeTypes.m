@@ -22,6 +22,9 @@ function seg = plotPolyEdgeTypes(annotation,img,whichPolygons,method)
 if nargin < 4
   method = 'vector';%'bmap';
 end
+if nargout > 0
+  method = 'bmap';
+end
 if nargin < 3
   whichPolygons = 'valid';
 % $$$   whichPolygons = 'all';
