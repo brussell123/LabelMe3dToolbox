@@ -5,8 +5,6 @@ function LM3Dinstall(destImages, destAnnotations, folder)
 % To download a single folder add a third argument:
 % LM3Dinstall(destImages, destAnnotations, folder)
 
-% $$$ HOMEANNOTATIONS = 'http://labelme.csail.mit.edu/Annotations/users/labelme3d';
-% $$$ HOMEIMAGES = 'http://labelme.csail.mit.edu/Images/users/labelme3d';
 HOMEANNOTATIONS = 'http://labelme.csail.mit.edu/Annotations3D';
 HOMEIMAGES = 'http://labelme.csail.mit.edu/Images';
 
