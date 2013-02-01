@@ -1,4 +1,9 @@
-function LMplot3Dscene(annotation)
+function LMplot3Dscene(annotation,img)
+
+if nargin > 1
+  PlotTexturedScene(annotation,img);
+  return;
+end
 
 P = getCameraMatrix(annotation,'RH');
 [K,R,C] = decomposeP(P);
@@ -30,3 +35,25 @@ ylabel('Y');
 zlabel('Z');
 legend(h,objStrs);
 cameratoolbar('setmodeGUI','orbit');
+
+function PlotTexturedScene(annotation,img)
+
+[Xmap,Ymap,Zmap,Nmap] = getXYZmaps(annotation);
+Xmap = double(Xmap);
+Ymap = double(Ymap);
+Zmap = double(Zmap);
+
+% Show warped image:
+% $$$ seg = plotPolyEdgeTypes(annotation3D,img,'valid');
+% $$$ mask = (Zmap>1).*(Zmap<10000).*(mean(seg,3)>0);
+mask = (Zmap>1).*(Zmap<10000);
+Xmap2 = Xmap;
+Ymap2 = Ymap;
+Zmap2 = Zmap;
+Xmap2(~mask)= NaN;
+Ymap2(~mask)= NaN;
+Zmap2(~mask)= NaN;
+b = 5;
+figure
+warp(Xmap2(b:end-b+1, b:end-b+1), Zmap2(b:end-b+1, b:end-b+1), Ymap2(b:end-b+1, b:end-b+1), uint8(img(b:end-b+1, b:end-b+1, : )))
+axis('ij'); axis('equal')
