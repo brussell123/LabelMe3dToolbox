@@ -1,6 +1,15 @@
 function seg = plotPolyEdgeTypes(annotation,img,whichPolygons,method)
 % Plot polygon and edge types over image.
 %
+% Polygon types:
+%   standingplanes => red
+%   part => yellow
+%   groundplane => green
+% Edge types:
+%   occlusion => black
+%   attached => gray
+%   contact => white
+%
 % Inputs:
 % annotation
 % img
@@ -11,23 +20,33 @@ function seg = plotPolyEdgeTypes(annotation,img,whichPolygons,method)
 % seg - Output bitmap image with polygon and edge types overlayed.
 
 if nargin < 4
-  method = 'bmap';
+  method = 'vector';%'bmap';
 end
 if nargin < 3
-  whichPolygons = 'all';
+  whichPolygons = 'valid';
+% $$$   whichPolygons = 'all';
 end
 
 % Parameters:
 alpha = 0.5; % alpha map between polygon colors and image
 cmap = [1 0 0; 0 1 0.7; 0.7 1 0];
-attachedLineWidth = 1;
 attachedColor = [0.5 0.5 0.5];
 occludedColor = [0 0 0];
-occludedLineWidth = 2;
 contactColor = [1 1 1];
-contactLineWidth = 2;
-plotEdgeTypes = 0; % Plot inferred edge types (if they exist)
 
+% Set line sizes:
+switch method
+ case 'bmap'
+  sz = ceil(sqrt(size(img,1)^2+size(img,2)^2)/800);
+  attachedLineWidth = sz;
+  occludedLineWidth = 2*sz;
+  contactLineWidth = 2*sz;
+ case 'vector'
+  attachedLineWidth = 1;
+  occludedLineWidth = 2;
+  contactLineWidth = 2;
+end
+  
 % Remove deleted objects from consideration:
 dd = isdeleted(annotation);
 annotation.object = annotation.object(~dd);
@@ -37,22 +56,22 @@ M = zeros(size(img,1),size(img,2),3);
 [a,layersNdx] = LMsortlayers(annotation,img);
 for i = layersNdx
   [X,Y] = getLMpolygon(annotation.object(i).polygon);
-  m = poly2mask(X,Y,size(img,1),size(img,2));
+  m = poly2mask(double(X),double(Y),size(img,1),size(img,2));
   ndx = find(m(:));
 
-  switch annotation.object(i).polygon.polyType
-   case 'standing'
+  switch annotation.object(i).world3d.type
+   case 'standingplanes'
     M(ndx) = cmap(1,1);
     M(ndx+size(img,1)*size(img,2)) = cmap(1,2);
     M(ndx+2*size(img,1)*size(img,2)) = cmap(1,3);
-   case 'ground'
+   case 'groundplane'
     M(ndx) = cmap(2,1);
     M(ndx+size(img,1)*size(img,2)) = cmap(2,2);
     M(ndx+2*size(img,1)*size(img,2)) = cmap(2,3);
    case 'part'
     parentNdx = getPartOfParents(annotation,i);
     parentNdx = parentNdx(end);
-    if strcmp(whichPolygons,'all') || strcmp(annotation.object(parentNdx).polygon.polyType,'standing')
+    if strcmp(whichPolygons,'all') || strcmp(annotation.object(parentNdx).world3d.type,'standingplanes')
       M(ndx) = cmap(3,1);
       M(ndx+size(img,1)*size(img,2)) = cmap(3,2);
       M(ndx+2*size(img,1)*size(img,2)) = cmap(3,3);
@@ -75,10 +94,10 @@ end
 
 % Plot edges for attached polygons:
 for i = 1:length(annotation.object)
-  if strcmp(annotation.object(i).polygon.polyType,'part')
+  if strcmp(annotation.object(i).world3d.type,'part')
     parentNdx = getPartOfParents(annotation,i);
     parentNdx = parentNdx(end);
-    if strcmp(whichPolygons,'all') || strcmp(annotation.object(parentNdx).polygon.polyType,'standing')
+    if strcmp(whichPolygons,'all') || strcmp(annotation.object(parentNdx).world3d.type,'standingplanes')
       % Get attached edges:
       edgesAttached = getEdges(annotation.object(i).polygon);
 
@@ -94,24 +113,11 @@ end
 
 % Plot edges for standing polygons:
 for i = layersNdx
-  if strcmp(whichPolygons,'all') || strcmp(annotation.object(i).polygon.polyType,'standing')
-    if plotEdgeTypes
-      % Plot inferred edge types.
-      if isfield(annotation.object(i).polygon.pt,'edgeType')
-        edgeTypes = {annotation.object(i).polygon.pt.edgeType};
-        j = strmatch('c',edgeTypes);
-        edgesContact = getEdges(annotation.object(i).polygon,j);
-        j = strmatch('o',edgeTypes);
-        edgesOccluded = getEdges(annotation.object(i).polygon,j);
-      end
-    else
-      % Plot contact lines:
-      polygon = annotation.object(i).polygon;
-      edgesOccluded = getEdges(polygon);
-      nn = [[1:length(polygon.contact)-1]; [2:length(polygon.contact)]];
-      [xc,yc] = getContactPoints(polygon);
-      edgesContact = [xc(nn(1,:)) yc(nn(1,:)) xc(nn(2,:)) yc(nn(2,:))];
-    end
+  if strcmp(whichPolygons,'all') || strcmp(annotation.object(i).world3d.type,'standingplanes')
+    edgesOccluded = getEdges(annotation.object(i).polygon);
+    xc = cellfun(@str2num,{annotation.object(i).world3d.contact(:).x});
+    yc = cellfun(@str2num,{annotation.object(i).world3d.contact(:).y});
+    edgesContact = [xc(1:end-1); yc(1:end-1); xc(2:end); yc(2:end)]';
     
     switch method
      case 'bmap'

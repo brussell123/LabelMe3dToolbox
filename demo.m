@@ -57,6 +57,10 @@ img = LMimread(DB,i,HOMEIMAGES);
 figure;
 LMplot3Dscene(annotation);
 
+% Plot inferred polygon and edge types:
+figure;
+plotPolyEdgeTypes(annotation,img);
+
 % Create depth maps:
 
 % Generate textured mesh:
