@@ -36,6 +36,11 @@ objb = bb(5,:); % Contact point
 mu_obj = 100*mu_obj;
 sig_obj = 100*sig_obj;
 
+if length(objh)==0
+  display(sprintf('Number of objects: %d...cannot infer camera matrix',length(objh)));
+  return;
+end
+
 display(sprintf('Number of objects: %d',length(objh)));
 
 % Get points on the ground plane (ground plane and contact points):
