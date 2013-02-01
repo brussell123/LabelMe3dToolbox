@@ -54,6 +54,5 @@ Xmap2(~mask)= NaN;
 Ymap2(~mask)= NaN;
 Zmap2(~mask)= NaN;
 b = 5;
-figure
 warp(Xmap2(b:end-b+1, b:end-b+1), Zmap2(b:end-b+1, b:end-b+1), Ymap2(b:end-b+1, b:end-b+1), uint8(img(b:end-b+1, b:end-b+1, : )))
 axis('ij'); axis('equal')
