@@ -52,64 +52,27 @@ display(sprintf('Computing geometry for %d objects.',length(validObjects)));
 annotation = myLMaddtags(annotation);
 
 if length(validObjects)>0
-  % Infer posterior of parts:
+  % Step 1: Infer polygon types (groundplane|standingplanes|part):
   annotation = inferPartsPosterior(annotation,Params3D.Ppart,Params3D.objectClasses,validObjects);
   
-  % Infer edges types:
+  % Step 2: Infer contact edges for "standingplanes" objects:
   annotation = inferEdgeTypesNew(annotation,validObjects);
+
+  % Make sure all standing objects make contact with the ground:
+  for i = validObjects
+    if strcmp(annotation.object(i).polygon.polyType,'standing') && isempty(getLMcontact(annotation.object(i).polygon))
+      annotation.object(i).polygon.polyType = '';
+    end
+  end
+  
+  % Convert XML file to new format (this needs to be removed at some point):
+  annotation = ConvertOld2New(annotation,validObjects);
+  
+  % Step 3: Recover camera parameters:
+  annotation = getviewpoint(annotation,Params3D.ObjectHeights);
 else
   display('Skipping part-of and edge type inference...');
 end
-
-% Make sure all standing objects make contact with the ground:
-for i = validObjects
-  if strcmp(annotation.object(i).polygon.polyType,'standing') && isempty(getLMcontact(annotation.object(i).polygon))
-    annotation.object(i).polygon.polyType = '';
-  end
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Convert XML file to new format:
-for i = validObjects%1:length(annotation.object)
-  annotation.object(i).world3d.stale = '0';
-  annotation.object(i).world3d.type = '';
-
-  % annotation.object.polygon.polyType -> annotation.object.world3d.type
-  if isfield(annotation.object(i),'polygon') && isfield(annotation.object(i).polygon,'polyType')
-    switch annotation.object(i).polygon.polyType
-     case 'standing'
-      annotation.object(i).world3d.type = 'standingplanes';
-     case 'part'
-      annotation.object(i).world3d.type = 'part';
-     case 'ground'
-      annotation.object(i).world3d.type = 'groundplane';
-     otherwise
-      annotation.object(i).world3d.type = 'none';
-    end
-    annotation.object(i).polygon = rmfield(annotation.object(i).polygon,'polyType');
-  end
-
-  % annotation.object.polygon.contact -> annotation.object.world3d.contact
-  if isfield(annotation.object(i),'polygon') && isfield(annotation.object(i).polygon,'contact')
-    annotation.object(i).world3d.contact = annotation.object(i).polygon.contact;
-    annotation.object(i).polygon = rmfield(annotation.object(i).polygon,'contact');
-  end
-
-  % annotation.object.partof -> annotation.object.world3d.partof
-  if isfield(annotation.object(i),'partof') && ~isempty(annotation.object(i).partof)
-    annotation.object(i).world3d.parentid = annotation.object(i).partof;
-  end
-end
-if isfield(annotation.object,'partof')
-  annotation.object = rmfield(annotation.object,'partof');
-end
-
-% Convert image size to strings:
-annotation.imagesize.nrows = num2str(annotation.imagesize.nrows);
-annotation.imagesize.ncols = num2str(annotation.imagesize.ncols);
-
-% Find camera parameters:
-annotation = getviewpoint(annotation,Params3D.ObjectHeights);
 
 % Get indices of non-deleted objects:
 notDeleted = find(~isdeleted(annotation))';
@@ -120,12 +83,10 @@ for i = notDeleted
   end
 end
 
-% Restore original object names:
+% Restore original object names and remove "originalname" field:
 for i = 1:length(annotation.object)
   annotation.object(i).name = annotation.object(i).originalname;
 end
-
-% Remove "originalname" field:
 annotation.object = rmfield(annotation.object,'originalname');
 
 % Remove points that have been added before:
