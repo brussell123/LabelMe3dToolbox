@@ -23,9 +23,12 @@ visualizing the inferred 3D information.
 
 QUICK START:
 
-The file "demo.m" has a demonstration of the main features of the
+demo.m - This file has a demonstration of the main features of the
 toolbox.  It is best to read and step through the demonstration
 line-by-line.
+
+Documentation.pdf - This file documents the scene geometry and format
+of the annotation XML files.
 
 
 (c) 2013, MIT Computer Science and Artificial Intelligence Laboratory
