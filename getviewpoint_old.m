@@ -74,7 +74,7 @@ if ~isempty(xGround)
   xGround(end+1) = min(xGround);
   yGround(end+1) = min(yGround);
   yGround(end+1) = min(yGround);
-  k = convhull(xGround,yGround);
+  k = convhull(double(xGround),double(yGround));
   xGround = unique([xGround(k) yGround(k)],'rows');
   yGround = xGround(:,2);
   xGround = xGround(:,1);
@@ -115,12 +115,16 @@ else
 % $$$   t = 0;
 end
 
-tmax = min(pi/4,YtoT(max([objb maxGround]),K));
+% Get bounds on camera pitch:
+tmax = double(min(pi/4,YtoT(max([objb maxGround])+1,K)));
 tmin = -pi/4;
 
+% Initialize camera pitch to be within bounds:
 t = max(min(tmax,t),tmin);
 
-paramsIn = [Cy t];
+paramsIn = double([Cy t]);
+
+K = [f 0 px; 0 f py; 0 0 1];
 
 options = optimset;
 if isfield(options,'Algorithm')
@@ -132,23 +136,24 @@ else
 % $$$   options = optimset('LevenbergMarquardt','on','Jacobian','on','Display','off');
 end
 
+% $$$ sigma_N = 0.02*sqrt(nrows^2+ncols^2);%5; % Noise std dev (in pixels)
 sigma_N = 0.02*nrows;%5; % Noise std dev (in pixels)
 
-F = CostFunctionLM3D(paramsIn,objh,objb,mu_obj,sig_obj,f,px,py,sigma_N);
+[F,J] = CostFunctionLM3D_old(paramsIn,objh,objb,mu_obj,sig_obj,K,sigma_N);
 display(sprintf('Initial cost: %f',F*F'/length(objh)));
 
 % $$$ keyboard;
 
 % Optimize:
 % $$$ [paramsOpt,resnorm,residual,exitflag,output] = lsqnonlin(@(p)CostFunctionLM3D(p,objh,objb,mu_obj,sig_obj,f,px,py,sigma_N),paramsIn,[],[],options);
-[paramsOpt,resnorm,residual,exitflag,output] = lsqnonlin(@(p)CostFunctionLM3D_old(p,objh,objb,mu_obj,sig_obj,f,px,py,sigma_N),paramsIn,[0 tmin],[inf tmax],options);
+[paramsOpt,resnorm,residual,exitflag,output] = lsqnonlin(@(p)CostFunctionLM3D_old(p,objh,objb,mu_obj,sig_obj,K,sigma_N),paramsIn,[0 tmin],[inf tmax],options);
 
 % $$$ [paramsOpt,fval,exitflag,output] = fsolve(@(p)CostFunctionLM3D(p,objh,objb,mu_obj,sig_obj,f,px,py,sigma_N),paramsIn,options);
 
 display(paramsIn);
 display(paramsOpt);
 
-F = CostFunctionLM3D(paramsOpt,objh,objb,mu_obj,sig_obj,f,px,py,sigma_N);
+F = CostFunctionLM3D_old(paramsOpt,objh,objb,mu_obj,sig_obj,K,sigma_N);
 display(sprintf('Final cost: %f',F*F'/length(objh)));
 
 % Set camera output:
