@@ -1,4 +1,4 @@
-function [bb,mu_obj,sig_obj,k] = getObjectsWithHeightDistributions(annotation,params,imageSize)
+function [bb,mu_obj,sig_obj,k] = getObjectsWithHeightDistributions(annotation,imageSize)
 % [bb,mu_obj,sig_obj,k] = getObjectsWithHeightDistributions(annotation,params,imageSize)
 %
 % Extract objects with valid height distributions.
@@ -13,6 +13,16 @@ function [bb,mu_obj,sig_obj,k] = getObjectsWithHeightDistributions(annotation,pa
 % mu_obj - Mean real-world object height.
 % sig_obj - Standard deviation real-world object height.
 % k - Object indices with valid height distributions
+
+if nargin > 2
+  error('Function has changed...too many input arguments');
+end
+
+% Text file containing object height distributions:
+txtObjectHeights = 'LM3D_ObjectHeights.txt';
+
+% Read object height distributions:
+params = ReadObjectHeights(txtObjectHeights);
 
 % Extract object names for which we have computed height distributions:
 objNames = params.objNames; % Object names

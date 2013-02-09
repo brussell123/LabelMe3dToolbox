@@ -1,11 +1,10 @@
-function annotation = getviewpoint_ObjectHeights(annotation,params)
+function annotation = getviewpoint_ObjectHeights(annotation)
 % annotation = getviewpoint(annotation,params)
 %
 % Compute camera parameters.
 %
 % Inputs:
 % annotation - LabelMe annotation structure
-% params - Learned object height parameters
 %
 % Outputs:
 % annotation - LabelMe annotation structure
@@ -26,7 +25,7 @@ sigma_N = 0.01*sqrt(nrows^2+ncols^2); % Labeling error std dev (in pixels)
 
 % Get object height information:
 display('Computing camera parameters with the following objects:');
-[bb,mu_obj,sig_obj] = getObjectsWithHeightDistributions(annotation,params,[nrows ncols]);
+[bb,mu_obj,sig_obj] = getObjectsWithHeightDistributions(annotation,[nrows ncols]);
 
 objh = (bb(3,:)-bb(4,:)); % Object pixel height
 objb = bb(5,:); % Contact point
