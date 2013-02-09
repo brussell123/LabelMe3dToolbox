@@ -69,7 +69,8 @@ if length(validObjects)>0
   annotation = ConvertOld2New(annotation,validObjects);
   
   % Step 3: Recover camera parameters:
-  annotation = getviewpoint(annotation,Params3D.ObjectHeights);
+% $$$   annotation = getviewpoint(annotation,Params3D.ObjectHeights);
+  annotation = getviewpoint_ObjectHeights(annotation,Params3D.ObjectHeights);
 else
   display('Skipping part-of and edge type inference...');
 end
