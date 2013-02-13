@@ -81,12 +81,12 @@ tmax = double(min(pi/4,YtoT(maxGround+1,K)));
 t = mean([tmin tmax]);
 
 % Initial parameters:
-paramsIn = double([Cy t]);
+paramsIn = double([Cy t f]);
 
 % Optimization parameters:
 options = optimset;
 if isfield(options,'Algorithm')
-  options = optimset('Jacobian','on','Algorithm','levenberg-marquardt','Display','off');
+  options = optimset('Jacobian','on','Algorithm','levenberg-marquardt','Display','off','DerivativeCheck','on');
 else
   options = optimset('Jacobian','on','NonlEqnAlgorithm','lm','Display','off');
 end
@@ -106,6 +106,7 @@ display(sprintf('Final cost: %f',F*F'));
 % Set camera output:
 Cy = paramsOpt(1);
 t = paramsOpt(2);
+f = paramsOpt(3);
 
 N = [0 0 0; 0 0 -1; 0 1 0];
 R = eye(3) + sin(t)*N + (1-cos(t))*N*N;
