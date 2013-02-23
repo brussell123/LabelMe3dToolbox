@@ -70,9 +70,11 @@ if nargin < 3
 end
 
 % Show warped image:
-% $$$ seg = plotPolyEdgeTypes(annotation3D,img,'valid');
-% $$$ mask = (Zmap>minDepth).*(Zmap<maxDepth).*(mean(seg,3)>0);
-mask = (Zmap>minDepth).*(Zmap<maxDepth);
+seg = getPolyEdgeTypes(annotation,img,'occluded_edges');
+mask = (Zmap>minDepth).*(Zmap<maxDepth).*(~seg);
+% $$$ % $$$ seg = plotPolyEdgeTypes(annotation3D,img,'valid');
+% $$$ % $$$ mask = (Zmap>minDepth).*(Zmap<maxDepth).*(mean(seg,3)>0);
+% $$$ mask = (Zmap>minDepth).*(Zmap<maxDepth);
 Xmap2 = Xmap;
 Ymap2 = Ymap;
 Zmap2 = Zmap;
