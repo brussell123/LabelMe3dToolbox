@@ -35,13 +35,29 @@ mu_obj = 100*mu_obj;
 sig_obj = 100*sig_obj;
 
 % Get any labeled horizon lines:
-Hy = [];
+Hx = []; Hy = [];
 notDeleted = find(~isdeleted(annotation))';
 for j = notDeleted
   [x,y] = getLMpolygon(annotation.object(j).polygon);
   if strcmp(lower(annotation.object(j).originalname),'horizon line') && (length(x)==2)
     [x,y] = LH2RH(x,y,[nrows ncols]);
-    Hy(end+1) = mean(y);
+    Hx(:,end+1) = x;
+    Hy(:,end+1) = y;
+  end
+end
+
+% Get any labeled right angles:
+xang = []; yang = [];
+notDeleted = find(~isdeleted(annotation))';
+for j = notDeleted
+  strs = regexp(lower(annotation.object(j).originalname),' ','split');
+  if ismember('angle',strs)
+    [x,y] = getLMpolygon(annotation.object(j).polygon);
+    if length(x)==3
+      [x,y] = LH2RH(x,y,[nrows ncols]);
+      xang(:,end+1) = x; yang(:,end+1) = y;
+      xang(:,end+1) = x([3 2 1]); yang(:,end+1) = y([3 2 1]);
+    end
   end
 end
 
@@ -80,35 +96,66 @@ tmax = double(min(pi/4,YtoT(maxGround+1,K)));
 % Initialize camera pitch to be within bounds:
 t = mean([tmin tmax]);
 
-% Initial parameters:
-paramsIn = double([Cy t f]);
-
 % Optimization parameters:
 options = optimset;
 if isfield(options,'Algorithm')
-  options = optimset('Jacobian','on','Algorithm','levenberg-marquardt','Display','off','DerivativeCheck','on');
+  options = optimset('Jacobian','on','Algorithm','levenberg-marquardt','Display','off');
+% $$$   options = optimset('Jacobian','on','Algorithm','levenberg-marquardt','Display','off','DerivativeCheck','on');
 else
   options = optimset('Jacobian','on','NonlEqnAlgorithm','lm','Display','off');
 end
 
-[F,J] = CostFunctionLM3D_ObjectHeights(paramsIn,objh,objb,mu_obj,sig_obj,Hy,f,py,sigma_N);
-display(sprintf('Initial cost: %f',F*F'));
+if ~isempty(xang)
+  % Initial parameters:
+  paramsIn = double([Cy tmax 0 f px py]);
 
-% Optimize cost function:
-[paramsOpt,resnorm,residual,exitflag,output] = lsqnonlin(@(p)CostFunctionLM3D_ObjectHeights(p,objh,objb,mu_obj,sig_obj,Hy,f,py,sigma_N),paramsIn,[0 tmin],[inf tmax],options);
+  [F,J] = CostFunctionLM3D_ObjectHeightsAngles(paramsIn,objh,objb,mu_obj,sig_obj,Hx,Hy,xang,yang,f,px,py,sigma_N);
+  display(sprintf('Initial cost: %f',F*F'));
+  
+  % Optimize cost function:
+  [paramsOpt,resnorm,residual,exitflag,output] = lsqnonlin(@(p)CostFunctionLM3D_ObjectHeightsAngles(p,objh,objb,mu_obj,sig_obj,Hx,Hy,xang,yang,f,px,py,sigma_N),paramsIn,[0 tmin 0],[inf tmax 0.0001],options);
+  [paramsOpt,resnorm,residual,exitflag,output] = lsqnonlin(@(p)CostFunctionLM3D_ObjectHeightsAngles(p,objh,objb,mu_obj,sig_obj,Hx,Hy,xang,yang,f,px,py,sigma_N),paramsOpt,[],[],options);
+  
+  display(paramsIn);
+  display(paramsOpt);
+  
+  F = CostFunctionLM3D_ObjectHeightsAngles(paramsOpt,objh,objb,mu_obj,sig_obj,Hx,Hy,xang,yang,f,px,py,sigma_N);
+  display(sprintf('Final cost: %f',F*F'));
+  
+  % Set camera output:
+  Cy = paramsOpt(1);
+  wx = paramsOpt(2);
+  wz = paramsOpt(3);
+  f = paramsOpt(4);
+  px = paramsOpt(5);
+  py = paramsOpt(6);
+else
+  % Initial parameters:
+  paramsIn = double([Cy tmax f]);
 
-display(paramsIn);
-display(paramsOpt);
+  [F,J] = CostFunctionLM3D_ObjectHeights(paramsIn,objh,objb,mu_obj,sig_obj,Hy,f,py,sigma_N);
+  display(sprintf('Initial cost: %f',F*F'));
+  
+  % Optimize cost function:
+  [paramsOpt,resnorm,residual,exitflag,output] = lsqnonlin(@(p)CostFunctionLM3D_ObjectHeights(p,objh,objb,mu_obj,sig_obj,Hy,f,py,sigma_N),paramsIn,[0 tmin],[inf tmax],options);
+  
+  display(paramsIn);
+  display(paramsOpt);
+  
+  F = CostFunctionLM3D_ObjectHeights(paramsOpt,objh,objb,mu_obj,sig_obj,Hy,f,py,sigma_N);
+  display(sprintf('Final cost: %f',F*F'));
+  
+  % Set camera output:
+  Cy = paramsOpt(1);
+  wx = paramsOpt(2);
+  f = paramsOpt(3);
+  wz = 0;
+end
 
-F = CostFunctionLM3D_ObjectHeights(paramsOpt,objh,objb,mu_obj,sig_obj,Hy,f,py,sigma_N);
-display(sprintf('Final cost: %f',F*F'));
-
-% Set camera output:
-Cy = paramsOpt(1);
-t = paramsOpt(2);
-f = paramsOpt(3);
-
-N = [0 0 0; 0 0 -1; 0 1 0];
+t = sqrt(wx^2+wz^2)+eps;
+nx = wx/t;
+nz = wz/t;
+N = [0 -nz 0; nz 0 -nx; 0 nx 0];
 R = eye(3) + sin(t)*N + (1-cos(t))*N*N;
 
 K = [f 0 px; 0 f py; 0 0 1];
