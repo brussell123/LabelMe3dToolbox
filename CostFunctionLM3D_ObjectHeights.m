@@ -36,6 +36,8 @@ if length(h) > 0
 end
 
 if length(Hy) > 0
+  Hy = mean(Hy,1);
+  
   Nv = length(Hy);
   
   % Horizon line error (in pixels), weighted by labeling error (in pixels):
