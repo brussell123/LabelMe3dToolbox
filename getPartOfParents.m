@@ -9,13 +9,10 @@ function k = getPartOfParents(annotation,i)
 % k - Vector of indices into annotation.object. First element is parent
 %     of part.  Last element is the top-most parent of part.
 
-% Get list of object IDs:
-objIDs = {annotation.object(:).id};
-
 k = [];
 if isfield(annotation.object(i),'world3d') && isfield(annotation.object(i).world3d,'parentid') && ~isempty(annotation.object(i).world3d.parentid)
   pp = annotation.object(i).world3d.parentid;
-  k = find(ismember(objIDs,pp));
+  k = ObjectID2Index(annotation,pp);
 end
 
 if ~isempty(k)
