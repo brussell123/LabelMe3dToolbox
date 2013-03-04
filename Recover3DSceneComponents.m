@@ -67,6 +67,9 @@ if length(validObjects)>0
   
   % Convert XML file to new format (this needs to be removed at some point):
   annotation = ConvertOld2New(annotation,validObjects);
+
+  % Infer angle polygon type:
+  annotation = AddAnglePolygonType(annotation,validObjects);
   
   % Step 3: Recover camera parameters:
 % $$$   annotation = getviewpoint(annotation,Params3D.ObjectHeights);

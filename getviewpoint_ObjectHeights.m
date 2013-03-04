@@ -46,14 +46,14 @@ for j = notDeleted
   end
 end
 
-% Get any labeled right angles:
+% Get any labeled right angles on the ground plane:
 xang = []; yang = [];
 notDeleted = find(~isdeleted(annotation))';
 for j = notDeleted
-  strs = regexp(lower(annotation.object(j).originalname),' ','split');
-  if ismember('angle',strs)
-    [x,y] = getLMpolygon(annotation.object(j).polygon);
-    if length(x)==3
+  if isfield(annotation.object(j),'world3d') && strcmp(annotation.object(j).world3d.type,'angle')
+    nRoot = ObjectID2Index(annotation,annotation.object(j).world3d.rootid);
+    if strcmp(annotation.object(nRoot).world3d.type,'groundplane')
+      [x,y] = getLMpolygon(annotation.object(j).polygon);
       [x,y] = LH2RH(x,y,[nrows ncols]);
       xang(:,end+1) = x; yang(:,end+1) = y;
       xang(:,end+1) = x([3 2 1]); yang(:,end+1) = y([3 2 1]);
