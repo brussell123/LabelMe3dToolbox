@@ -10,8 +10,18 @@ function [annotation,valid] = Recover3DSceneComponents(annotation,Params3D,image
 
 valid = 0;
 if (nargin < 3) && ~isfield(annotation,'imagesize')
-  error('The annotation is missing the <imagesize> field.  Please pass in [nrows ncols] as third argument to Recover3DSceneComponents.m.');
-  return;
+  % If 'imagesize' field does not exist, then look for image dimensions
+  % on LabelMe server.  If image does not exist, then you need to pass in
+  % the imageSize as the third argument to this function.  If you have
+  % the original image, then an easy way to set the 'imagesize' field is
+  % as follows:
+  %
+  % DB.annotation.imagesize.nrows = size(img,1);
+  % DB.annotation.imagesize.ncols = size(img,2);
+
+  info = imfinfo(fullfile('http://labelme.csail.mit.edu/Images',annotation.folder,annotation.filename));
+  annotation.imagesize.nrows = info.Height;
+  annotation.imagesize.ncols = info.Width;
 end
 if ~isfield(annotation,'imagesize')
   annotation.imagesize.nrows = imageSize(1);
