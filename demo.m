@@ -70,6 +70,11 @@ figure;
 LMplot(annotation,img);
 hold on;
 plot(xh,yh,'r');
+
+% Plot depth map:
+[Xmap,Ymap,Zmap,Nmap] = getXYZmaps(annotation);
+figure;
+plotZmap(Zmap);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 return;
